@@ -1,9 +1,11 @@
 package com.nj.play.redis.redisson.test;
 
 import org.junit.jupiter.api.Test;
+import org.redisson.api.RDequeReactive;
 import org.redisson.api.RListReactive;
 import org.redisson.api.RQueueReactive;
 import org.redisson.client.codec.LongCodec;
+import org.redisson.client.codec.StringCodec;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -27,5 +29,13 @@ public class ListQueueStackTest extends BaseTest{
         Mono<Void> queuePoll = queue.poll().repeat(3).doOnNext(System.out::println).then();
         StepVerifier.create(queuePoll).verifyComplete();
         StepVerifier.create(queue.size()).expectNext(6).verifyComplete();
+    }
+
+    @Test
+    public void testStack() {
+        RDequeReactive<String> stack = this.redissonClient.getDeque("number-list", StringCodec.INSTANCE);
+        Mono<Void> stackPoll = stack.pollLast().repeat(3).doOnNext(System.out::println).then();
+        StepVerifier.create(stackPoll).verifyComplete();
+        StepVerifier.create(stack.size()).expectNext(2).verifyComplete();
     }
 }
